@@ -63,29 +63,37 @@ class AcrobotEnv(core.Env):
     dt = .02
 
     #理想并且没有摩擦的模型参数
-    # LINK_LENGTH_1 = 1.  # [m]
-    # LINK_LENGTH_2 = 1.  # [m]
-    # LINK_MASS_1 = 1.  #: [kg] mass of link 1
-    # LINK_MASS_2 = 1.  #: [kg] mass of link 2
-    # LINK_COM_POS_1 = 0.5  #: [m] position of the center of mass of link 1
-    # LINK_COM_POS_2 = 0.5  #: [m] position of the center of mass of link 2
-    # LINK_MOI1 = 1.  #: moments of inertia for both links
-    # LINK_MOI2 = 1.
-    # g = 9.81
+    LINK_LENGTH_1 = 1.  # [m]
+    LINK_LENGTH_2 = 1.  # [m]
+    LINK_MASS_1 = 1.  #: [kg] mass of link 1
+    LINK_MASS_2 = 1.  #: [kg] mass of link 2
+    LINK_COM_POS_1 = 0.5  #: [m] position of the center of mass of link 1
+    LINK_COM_POS_2 = 0.5  #: [m] position of the center of mass of link 2
+    LINK_MOI1 = 1.  #: moments of inertia for both links
+    LINK_MOI2 = 1.
+    g = 9.81
     #有摩擦实际模型
-    LINK_LENGTH_1 = 0.593  # [m]
-    LINK_LENGTH_2 = 0.593  # [m]
-    LINK_MASS_1 = 2.73  #: [kg] mass of link 1
-    LINK_MASS_2 = 1.68  #: [kg] mass of link 2
-    LINK_COM_POS_1 = 0.4  #: [m] position of the center of mass of link 1
-    LINK_MOI1 = 0.25  #: moments of inertia for both links
-    LINK_COM_POS_2 = 0.377  #: [m] position of the center of mass of link 2
-    LINK_MOI2= 0.116
-    MU11=0.205
-    MU12=0.184
-    MU21=0.93
-    MU22=1.07
-    g=9.81
+    # LINK_LENGTH_1 = 0.593  # [m]
+    # LINK_LENGTH_2 = 0.593  # [m]
+    # LINK_MASS_1 = 2.73  #: [kg] mass of link 1
+    # LINK_MASS_2 = 1.68  #: [kg] mass of link 2
+    # LINK_COM_POS_1 = 0.4  #: [m] position of the center of mass of link 1
+    # LINK_MOI1 = 0.25  #: moments of inertia for both links
+    # LINK_COM_POS_2 = 0.377  #: [m] position of the center of mass of link 2
+    # LINK_MOI2= 0.116
+    # MU11=0.205
+    # MU12=0.184
+    # MU21=0.93
+    # MU22=1.07
+    # g = 9.81
+    # LINK_COM_POS_1 = 0.3  #: [m] position of the center of mass of link 1
+    # LINK_MOI1 = 0.25  #: moments of inertia for both links
+    # LINK_COM_POS_2 = 0.4  #: [m] position of the center of mass of link 2
+    # LINK_MOI2 = 0.116
+    # MU11 = 0.5
+    # MU12=0.5
+    # MU21=1
+    # MU22=2
 
     # LINK_LENGTH_1 = 0.593  # [m]
     # LINK_LENGTH_2 = 0.593  # [m]
@@ -107,7 +115,7 @@ class AcrobotEnv(core.Env):
     MAX_VEL_1 = 4 * np.pi
     MAX_VEL_2 = 9 * np.pi
     max_torque = 10.
-    ns_noise=1
+    ns_noise=0
     torque_noise_max = 0.
     angle1_noise_max=0.02
     angle2_noise_max=0.04
@@ -122,14 +130,17 @@ class AcrobotEnv(core.Env):
 
     def __init__(self):
         self.viewer = None
-        high = np.array([1.0, 1.0, 1.0, 1.0, self.MAX_VEL_1, self.MAX_VEL_2,1.0,1.0,1.0,1.0])
+        # high = np.array([1.0, 1.0, 1.0, 1.0, self.MAX_VEL_1, self.MAX_VEL_2,1.0,1.0,1.0,1.0])
+        high=np.array([1.0,1.0,1.0,1.0,self.MAX_VEL_1,self.MAX_VEL_2])
         low = -high
+        #基于误差
+        # high=np.array([20,2])
+        # low=-high
         self.observation_space = spaces.Box(low, high)
         self.action_space = spaces.Box(low=-self.max_torque, high=self.max_torque, shape=(1,))
         self.state = None
         self._seed()
         self.radius = 0.05
-        self.i = 0
         self.ns_smoothing=0
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
@@ -137,22 +148,36 @@ class AcrobotEnv(core.Env):
 
     def _reset(self):
         # self.state = self.np_random.uniform(low=-1, high=1, size=(4,))
-        # high = np.array([-pi/2+0.5, 0.5, 0.0, 0.0])
-        # low = np.array([-pi/2-0.5, -0.5, -0.0, -0.0])
+        # high = np.array([-3*pi/4+0.1, -pi/2+0.1, 0.0, 0.0])
+        # low = np.array([-3*pi/4-0.1, -pi/2-0.1, -0.0, -0.0])
         # self.state = self.np_random.uniform(low=low, high=high)
-        self.state=[-3*pi/4,-pi/2,0,0]
+        self.state=[-pi/2,0,0,0]
         # self.theta1d=self.np_random.uniform(low=-pi/3, high=-pi/6, size=(1,))[0]
         # self.theta2d = self.np_random.uniform(low=pi/3, high=2*pi/3, size=(1,))[0]
         # self.state=[-self.theta1d-pi,-self.theta2d,0,0]
-
+        m1 = self.LINK_MASS_1
+        m2 = self.LINK_MASS_2
+        l1 = self.LINK_LENGTH_1
+        lc1 = self.LINK_COM_POS_1
+        lc2 = self.LINK_COM_POS_2
+        I1 = self.LINK_MOI1
+        I2 = self.LINK_MOI2
+        g = 9.81
+        Ed = m1 * g * lc1 * sin(self.theta1d) + m2 * g * (l1 * sin(self.theta1d) + lc2 * sin(self.theta1d + self.theta2d))
+        E = self.energy(self.state)
+        eE = E - Ed
+        eq2 = self.state[1] - self.theta2d
+        self.consume_energy=0
         #虚约束的方法的参数
-        self.a = (self.theta1d+pi/2) / self.theta2d
-        self.b = -pi/2
-        self.A = self.omega2 + self.a * self.omega1 + self.a * self.omega2
-        self.B = (1 + 2 * self.a) * self.omega3
-        self.Y0 =0
+        # self.a = (self.theta1d+pi/2) / self.theta2d
+        # self.b = -pi/2
+        # self.A = self.omega2 + self.a * self.omega1 + self.a * self.omega2
+        # self.B = (1 + 2 * self.a) * self.omega3
+        # self.Y0 =0
         # self.state = [self.theta1d, self.theta2d, 0, 0]
         return self._get_ob()
+        #基于误差
+        # return np.array([eE,eq2])
 
     def _step(self, a):
 
@@ -163,7 +188,8 @@ class AcrobotEnv(core.Env):
         # reward1=-abs(phi-s[0])
         # reward2=-abs(Y-s[3]**2)
         # reward=10*reward1+reward2
-
+        p=self.state[3]*a[0]
+        self.consume_energy+=p*0.02
         #对称虚约束结合距离的方法
         # 模型改目标的位置
         g_p1 = [self.LINK_LENGTH_1 *
@@ -179,7 +205,6 @@ class AcrobotEnv(core.Env):
               p1[1] + self.LINK_LENGTH_2 * np.cos(s[0] + s[1])]
         # 末端与目标点之间的距离
         D = math.sqrt((p2[0] - g_p2[0]) ** 2 + (p2[1] - g_p2[1]) ** 2)
-
         #奖励2通过距离范围来实现
         # if D<=0.05:
         #     reward2=10
@@ -201,14 +226,27 @@ class AcrobotEnv(core.Env):
         I2 = self.LINK_MOI2
         g = 9.81
         Ed = m1 * g * lc1 * sin(self.theta1d) + m2 * g * (l1 * sin(self.theta1d) + lc2 * sin(self.theta1d + self.theta2d))
-        E = self.energy(s)
-        # reward = -abs(E - Ed) - 10 * abs(self.state[1] - self.theta2d)
-        #蓄能起摆训练
-        phi = self.a * s[1] + self.b
-        reward1 = -abs(phi - s[0])
-        reward2=-abs(E-Ed)
-        reward = 10*reward1 + reward2
 
+        #这种方法是考虑了趋近率的概念
+        # eE=abs(E - Ed)
+        # eq=10 * abs(self.state[1] - self.theta2d)
+        # if self.i==0:
+        #     self.expect_s_inital=eE+eq
+        #     self.ds=(eE+eq)/500
+        # else:
+        #     self.expect_s_inital=self.expect_s_inital
+        # if self.i<501:
+        #     expect_s=self.expect_s_inital-self.i*self.ds
+        # else:
+        #     expect_s=0
+        # actual_s=eE+eq
+        # reward=-abs(expect_s-actual_s)
+        # self.i+=1
+        #蓄能起摆训练
+        # phi = self.a * s[1] + self.b
+        # reward1 = -abs(phi - s[0])
+        # reward2=-abs(E-Ed)
+        # reward = 10*reward1 + reward2
 
         # Add noise to the force action
         # if self.torque_noise_max > 0:
@@ -242,17 +280,37 @@ class AcrobotEnv(core.Env):
         # self.ns_smoothing=0.2*ns[3]+0.8*self.ns_smoothing
         # ns[3]=self.ns_smoothing
         self.state = ns
+        E = self.energy(s)
+        # eE = E - Ed
+        # eq2 = self.state[1] - self.theta2d
+        reward1 = -abs(E - Ed)
+        reward2 = -10 * abs(self.state[1] - self.theta2d)
+        reward3=-10*abs(self.state[3])
+        reward4=-10*abs(self.state[3]*a[0])
+        reward = reward1 + reward2+reward3+reward4
+        #只考虑起摆
+        # done=bool(E>=Ed)
+        # reward=0
+        # if done:
+        #     reward=100
+        # reward-=math.pow(a[0],2)*0.1
+        # self.E1=E
         # self.i += 1
         # done=bool(D<=0.1)
         # reward=0
         # if done:
         #     reward=100-0.1*(self.state[2]**2+self.state[3]**2)
+        #只考虑起摆
+        # return (self._get_ob(),reward,False,[E,self.state,Ed])
         #能量
-        # return (self._get_ob(), reward, False, [E,self.state,Ed,self.theta2d,D])
-        #对称虚约束的
+        return (self._get_ob(), reward, False, [E,self.state,Ed,self.theta2d,D,reward,reward1,reward2,reward3,reward4])
+        # 对称虚约束的
         # return (self._get_ob(), reward, False,[reward1,reward2,self.state,phi,Y,D])
         #虚约束与能量结合
-        return(self._get_ob(), reward, False,[reward1,reward2,self.state,phi,D,E,Ed])
+        # return(self._get_ob(), reward, False,[reward1,reward2,self.state,phi,D,E,Ed])
+        #基于能量和角度误差
+        # return (np.array([eE,eq2]),reward,False,[eE,eq2,Ed])
+
     def F(self,x):
         F=(self.A*self.omega4+0.5*self.B*self.omega5)/self.a*sin(self.a*x+self.b)+(self.A*self.omega5+0.5*self.B*self.omega4)/(self.a+1)*sin((self.a+1)*x+self.b)\
           +0.5*self.B*self.omega4/(self.a-1)*sin((self.a-1)*x+self.b)+0.5*self.B*self.omega5/(self.a+2)*sin((self.a+2)*x+self.b)
@@ -260,8 +318,12 @@ class AcrobotEnv(core.Env):
 
     def _get_ob(self):
         s = self.state
-        return np.array([cos(s[0]), np.sin(s[0]), cos(s[1]), sin(s[1]), s[2], s[3],\
-                         sin(self.theta1d),cos(self.theta1d),sin(self.theta2d),cos(self.theta2d)])
+        return np.array([cos(s[0]), np.sin(s[0]), cos(s[1]), sin(s[1]), s[2], s[3]])
+
+    # def _get_ob(self):
+    #     s = self.state
+    #     return np.array([cos(s[0]), np.sin(s[0]), cos(s[1]), sin(s[1]), s[2], s[3],\
+    #                      sin(self.theta1d),cos(self.theta1d),sin(self.theta2d),cos(self.theta2d)])
 
     def _terminal(self):
         s = self.state
@@ -276,14 +338,21 @@ class AcrobotEnv(core.Env):
         lc2 = self.LINK_COM_POS_2
         I1 = self.LINK_MOI1
         I2 = self.LINK_MOI2
-        mu11=self.MU11
-        mu12=self.MU12
-        mu21=self.MU21
-        mu22=self.MU22
+        # mu11=self.MU11
+        # mu12=self.MU12
+        # mu21=self.MU21
+        # mu22=self.MU22
 
         g = 9.81
         a = s_augmented[-1]
         s = s_augmented[:-1]
+        ########################################
+        #全驱动
+        # a=s_augmented[-1]
+        # s = s_augmented[:-1]
+        # tau1=a
+        # tau2=-5
+        #######################################
         theta1 = s[0]
         theta2 = s[1]
         dtheta1 = s[2]
@@ -295,13 +364,16 @@ class AcrobotEnv(core.Env):
         d12=self.omega2+self.omega3*cos(theta2)
         d21=d12
         d22=self.omega2
-        h1=-self.omega3*dtheta2*sin(theta2)*(2*dtheta1+dtheta2)+mu11*dtheta1+mu12*sgn(dtheta1)
-        h2=self.omega3*dtheta1**2*sin(theta2)+mu21*dtheta2+mu22*sgn(dtheta2)
+        h1=-self.omega3*dtheta2*sin(theta2)*(2*dtheta1+dtheta2)#+mu11*dtheta1+mu12*sgn(dtheta1)
+        h2=self.omega3*dtheta1**2*sin(theta2)#+mu21*dtheta2+mu22*sgn(dtheta2)
         phi2=self.omega5*g*cos(theta1+theta2)
         phi1=self.omega4*g*cos(theta1)+phi2
         ddtheta1 = (d12 * a - d12 * (h2 + phi2) + d22 * (h1 + phi1)) / (d12 * d21 - d22 * d11)
         ddtheta2 = (d21 * (h1 + phi1) - d11 * (h2 + phi2) + d11 * a) / (d11 * d22 - d12 * d21)
 
+        #全驱动
+        # ddtheta1 = (d12 * tau2 - d22 *a  - d12 * (h2 + phi2) + d22 * (h1 + phi1)) / (d12 * d21 - d22 * d11)
+        # ddtheta2 = (d21 * (h1 + phi1) - d11 * (h2 + phi2) + d11 * tau2 - d21 *a ) / (d11 * d22 - d12 * d21)
         #模型改（参考角度不同）
         # sgn = lambda x: 1 if x > 1 else -1 if x < -1 else 0
         # d1 = m1 * lc1 ** 2 + m2 * \

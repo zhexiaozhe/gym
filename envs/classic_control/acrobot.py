@@ -151,7 +151,7 @@ class AcrobotEnv(core.Env):
         # high = np.array([-3*pi/4+0.1, -pi/2+0.1, 0.0, 0.0])
         # low = np.array([-3*pi/4-0.1, -pi/2-0.1, -0.0, -0.0])
         # self.state = self.np_random.uniform(low=low, high=high)
-        self.state=[-pi/2,0,0,0]
+        self.state=[-pi/2+0.1,0.1,0,0]
         # self.theta1d=self.np_random.uniform(low=-pi/3, high=-pi/6, size=(1,))[0]
         # self.theta2d = self.np_random.uniform(low=pi/3, high=2*pi/3, size=(1,))[0]
         # self.state=[-self.theta1d-pi,-self.theta2d,0,0]
@@ -168,6 +168,9 @@ class AcrobotEnv(core.Env):
         eE = E - Ed
         eq2 = self.state[1] - self.theta2d
         self.consume_energy=0
+        self.a_before=0
+        self.i=0
+        self.A=[]
         #虚约束的方法的参数
         # self.a = (self.theta1d+pi/2) / self.theta2d
         # self.b = -pi/2
@@ -191,20 +194,7 @@ class AcrobotEnv(core.Env):
         p=self.state[3]*a[0]
         self.consume_energy+=p*0.02
         #对称虚约束结合距离的方法
-        # 模型改目标的位置
-        g_p1 = [self.LINK_LENGTH_1 *
-                np.sin(self.theta1d), self.LINK_LENGTH_1 * np.cos(self.theta1d)]
 
-        g_p2 = [g_p1[0] + self.LINK_LENGTH_2 * np.sin(self.theta1d + self.theta2d),
-                g_p1[1] + self.LINK_LENGTH_2 * np.cos(self.theta1d + self.theta2d)]
-        # 模型改末端位置
-        p1 = [self.LINK_LENGTH_1 *
-              np.sin(s[0]), self.LINK_LENGTH_1 * np.cos(s[0])]
-
-        p2 = [p1[0] + self.LINK_LENGTH_2 * np.sin(s[0] + s[1]),
-              p1[1] + self.LINK_LENGTH_2 * np.cos(s[0] + s[1])]
-        # 末端与目标点之间的距离
-        D = math.sqrt((p2[0] - g_p2[0]) ** 2 + (p2[1] - g_p2[1]) ** 2)
         #奖励2通过距离范围来实现
         # if D<=0.05:
         #     reward2=10
@@ -227,21 +217,6 @@ class AcrobotEnv(core.Env):
         g = 9.81
         Ed = m1 * g * lc1 * sin(self.theta1d) + m2 * g * (l1 * sin(self.theta1d) + lc2 * sin(self.theta1d + self.theta2d))
 
-        #这种方法是考虑了趋近率的概念
-        # eE=abs(E - Ed)
-        # eq=10 * abs(self.state[1] - self.theta2d)
-        # if self.i==0:
-        #     self.expect_s_inital=eE+eq
-        #     self.ds=(eE+eq)/500
-        # else:
-        #     self.expect_s_inital=self.expect_s_inital
-        # if self.i<501:
-        #     expect_s=self.expect_s_inital-self.i*self.ds
-        # else:
-        #     expect_s=0
-        # actual_s=eE+eq
-        # reward=-abs(expect_s-actual_s)
-        # self.i+=1
         #蓄能起摆训练
         # phi = self.a * s[1] + self.b
         # reward1 = -abs(phi - s[0])
@@ -283,11 +258,30 @@ class AcrobotEnv(core.Env):
         E = self.energy(s)
         # eE = E - Ed
         # eq2 = self.state[1] - self.theta2d
+        self.A.append(a[0])
         reward1 = -abs(E - Ed)
-        reward2 = -10 * abs(self.state[1] - self.theta2d)
-        reward3=-10*abs(self.state[3])
-        reward4=-10*abs(self.state[3]*a[0])
-        reward = reward1 + reward2+reward3+reward4
+        reward2 = -abs(self.state[1] - self.theta2d)
+        reward3=-abs(self.state[3])
+        reward4=-abs(self.state[3]*a[0])
+        reward5=-abs(a[0])
+        reward = reward1+reward2+0.1*reward1*reward5
+        D=self.distance(self.state)
+        # self.i+=1
+        # if self.i==500:
+        #     reward=100-50*(self.state[0]-self.theta1d)**2-25*(self.state[1]-self.theta2d)**2-0.1*(self.state[2])**2-0.1*(self.state[3])**2
+        #     done=1
+        # else:
+        #     done=0
+        # if 1.05*Ed<=E<=0.95*Ed:
+        #     reward=100-abs(a[0])
+        # else:
+        #     reward=-abs(a[0])
+        # if D<0.1:
+        #     reward=100-self.state[2]**2-self.state[3]**2
+        #     done=1
+        # else:
+        #     done=0
+        # self.a_before=a[0]
         #只考虑起摆
         # done=bool(E>=Ed)
         # reward=0
@@ -303,7 +297,7 @@ class AcrobotEnv(core.Env):
         #只考虑起摆
         # return (self._get_ob(),reward,False,[E,self.state,Ed])
         #能量
-        return (self._get_ob(), reward, False, [E,self.state,Ed,self.theta2d,D,reward,reward1,reward2,reward3,reward4])
+        return (self._get_ob(), reward, False, [E,self.state,Ed,self.theta2d,D,reward,reward1,reward2,reward3,reward5])
         # 对称虚约束的
         # return (self._get_ob(), reward, False,[reward1,reward2,self.state,phi,Y,D])
         #虚约束与能量结合
@@ -315,6 +309,23 @@ class AcrobotEnv(core.Env):
         F=(self.A*self.omega4+0.5*self.B*self.omega5)/self.a*sin(self.a*x+self.b)+(self.A*self.omega5+0.5*self.B*self.omega4)/(self.a+1)*sin((self.a+1)*x+self.b)\
           +0.5*self.B*self.omega4/(self.a-1)*sin((self.a-1)*x+self.b)+0.5*self.B*self.omega5/(self.a+2)*sin((self.a+2)*x+self.b)
         return F
+
+    def distance(self,s):
+        # 模型改目标的位置
+        g_p1 = [self.LINK_LENGTH_1 *
+                np.sin(self.theta1d), self.LINK_LENGTH_1 * np.cos(self.theta1d)]
+
+        g_p2 = [g_p1[0] + self.LINK_LENGTH_2 * np.sin(self.theta1d + self.theta2d),
+                g_p1[1] + self.LINK_LENGTH_2 * np.cos(self.theta1d + self.theta2d)]
+        # 模型改末端位置
+        p1 = [self.LINK_LENGTH_1 *
+              np.sin(s[0]), self.LINK_LENGTH_1 * np.cos(s[0])]
+
+        p2 = [p1[0] + self.LINK_LENGTH_2 * np.sin(s[0] + s[1]),
+              p1[1] + self.LINK_LENGTH_2 * np.cos(s[0] + s[1])]
+        # 末端与目标点之间的距离
+        D = math.sqrt((p2[0] - g_p2[0]) ** 2 + (p2[1] - g_p2[1]) ** 2)
+        return D
 
     def _get_ob(self):
         s = self.state

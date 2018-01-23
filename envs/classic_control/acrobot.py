@@ -60,32 +60,45 @@ class AcrobotEnv(core.Env):
         'video.frames_per_second' : 15
     }
 
-    dt = .02
-
-    #理想并且没有摩擦的模型参数
-    LINK_LENGTH_1 = 1.  # [m]
-    LINK_LENGTH_2 = 1.  # [m]
-    LINK_MASS_1 = 1.  #: [kg] mass of link 1
-    LINK_MASS_2 = 1.  #: [kg] mass of link 2
-    LINK_COM_POS_1 = 0.5  #: [m] position of the center of mass of link 1
-    LINK_COM_POS_2 = 0.5  #: [m] position of the center of mass of link 2
-    LINK_MOI1 = 1.  #: moments of inertia for both links
-    LINK_MOI2 = 1.
+    dt = .001
+    #基于能量的理想模型
+    # LINK_LENGTH_1 = 0.5 # [m]
+    # LINK_LENGTH_2 = 0.5  # [m]
+    # LINK_MASS_1 = 3.499  #: [kg] mass of link 1
+    # LINK_MASS_2 = 1.232  #: [kg] mass of link 2
+    # LINK_COM_POS_1 = 0.141  #: [m] position of the center of mass of link 1
+    # LINK_COM_POS_2 = 0.333  #: [m] position of the center of mass of link 2
+    # LINK_MOI1 = 0.09  #: moments of inertia for both links
+    # LINK_MOI2 = 0.033
+    # MU11 = 0.
+    # MU12 = 0.
+    # MU21 = 0.
+    # MU22 = 0.
     g = 9.81
-    #有摩擦实际模型
-    # LINK_LENGTH_1 = 0.593  # [m]
-    # LINK_LENGTH_2 = 0.593  # [m]
-    # LINK_MASS_1 = 2.73  #: [kg] mass of link 1
-    # LINK_MASS_2 = 1.68  #: [kg] mass of link 2
-    # LINK_COM_POS_1 = 0.4  #: [m] position of the center of mass of link 1
-    # LINK_MOI1 = 0.25  #: moments of inertia for both links
-    # LINK_COM_POS_2 = 0.377  #: [m] position of the center of mass of link 2
-    # LINK_MOI2= 0.116
-    # MU11=0.205
-    # MU12=0.184
-    # MU21=0.93
-    # MU22=1.07
+    #理想并且没有摩擦的模型参数
+    # LINK_LENGTH_1 = 1.  # [m]
+    # LINK_LENGTH_2 = 1.  # [m]
+    # LINK_MASS_1 = 1.  #: [kg] mass of link 1
+    # LINK_MASS_2 = 1.  #: [kg] mass of link 2
+    # LINK_COM_POS_1 = 0.5  #: [m] position of the center of mass of link 1
+    # LINK_COM_POS_2 = 0.5  #: [m] position of the center of mass of link 2
+    # LINK_MOI1 = 1.  #: moments of inertia for both links
+    # LINK_MOI2 = 1.
     # g = 9.81
+    #有摩擦实际模型
+    LINK_LENGTH_1 = 0.593  # [m]
+    LINK_LENGTH_2 = 0.593  # [m]
+    LINK_MASS_1 = 2.73  #: [kg] mass of link 1
+    LINK_MASS_2 = 1.68  #: [kg] mass of link 2
+    LINK_COM_POS_1 = 0.4  #: [m] position of the center of mass of link 1
+    LINK_MOI1 = 0.25  #: moments of inertia for both links
+    LINK_COM_POS_2 = 0.377  #: [m] position of the center of mass of link 2
+    LINK_MOI2= 0.116
+    MU11=0.205
+    MU12=0.184
+    MU21=0.93
+    MU22=1.07
+    g = 9.81
     # LINK_COM_POS_1 = 0.3  #: [m] position of the center of mass of link 1
     # LINK_MOI1 = 0.25  #: moments of inertia for both links
     # LINK_COM_POS_2 = 0.4  #: [m] position of the center of mass of link 2
@@ -110,18 +123,11 @@ class AcrobotEnv(core.Env):
     omega4=LINK_MASS_1*LINK_COM_POS_1+LINK_MASS_2*LINK_LENGTH_1
     omega5=LINK_MASS_2*LINK_COM_POS_2
     theta1d = -pi / 4
-    theta2d = pi / 2
+    theta2d = pi/2
 
     MAX_VEL_1 = 4 * np.pi
     MAX_VEL_2 = 9 * np.pi
     max_torque = 10.
-    ns_noise=0
-    torque_noise_max = 0.
-    angle1_noise_max=0.02
-    angle2_noise_max=0.04
-    angle_velocity1_max=0.04
-    angle_velocity2_max=0.08
-
     #: use dynamics equations from the nips paper or the book
     book_or_nips = "book"
     action_arrow = None
@@ -142,16 +148,19 @@ class AcrobotEnv(core.Env):
         self._seed()
         self.radius = 0.05
         self.ns_smoothing=0
+
     def _seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
     def _reset(self):
         # self.state = self.np_random.uniform(low=-1, high=1, size=(4,))
-        # high = np.array([-3*pi/4+0.1, -pi/2+0.1, 0.0, 0.0])
-        # low = np.array([-3*pi/4-0.1, -pi/2-0.1, -0.0, -0.0])
+        # high = np.array([-3*pi / 4 + 0.1, -pi/2+0.1, 0.0, 0.0])
+        # low = np.array([-3*pi / 4 - 0.1, -pi/2-0.1, -0.0, -0.0])
+        # high = np.array([-pi/2+0.1, 0.1, 0.0, 0.0])
+        # low = np.array([-pi/2-0.1, -0.1, -0.0, -0.0])
         # self.state = self.np_random.uniform(low=low, high=high)
-        self.state=[-pi/2+0.1,0.1,0,0]
+        self.state=[-5*pi/6,-pi/6,0,0]
         # self.theta1d=self.np_random.uniform(low=-pi/3, high=-pi/6, size=(1,))[0]
         # self.theta2d = self.np_random.uniform(low=pi/3, high=2*pi/3, size=(1,))[0]
         # self.state=[-self.theta1d-pi,-self.theta2d,0,0]
@@ -240,11 +249,6 @@ class AcrobotEnv(core.Env):
         # ns_continuous = integrate.odeint(self._dsdt, self.s_continuous, [0, self.dt])
         # self.s_continuous = ns_continuous[-1] # We only care about the state
         # at the ''final timestep'', self.dt
-        if self.ns_noise==1:
-            ns[0] += self.np_random.uniform(-self.angle1_noise_max,self.angle1_noise_max)
-            ns[1] += self.np_random.uniform(-self.angle2_noise_max, self.angle2_noise_max)
-            ns[2] += self.np_random.uniform(-self.angle_velocity1_max, self.angle_velocity1_max)
-            ns[3] += self.np_random.uniform(-self.angle_velocity2_max, self.angle_velocity2_max)
 
         ns[0] = wrap(ns[0], -pi, pi)
         ns[1] = wrap(ns[1], -pi, pi)
@@ -260,18 +264,17 @@ class AcrobotEnv(core.Env):
         # eq2 = self.state[1] - self.theta2d
         self.A.append(a[0])
         reward1 = -abs(E - Ed)
-        reward2 = -abs(self.state[1] - self.theta2d)
+        reward2 = -10*abs(self.state[1] - self.theta2d)
         reward3=-abs(self.state[3])
         reward4=-abs(self.state[3]*a[0])
         reward5=-abs(a[0])
-        reward = reward1+reward2+0.1*reward1*reward5
+        # reward = reward1+reward2
         D=self.distance(self.state)
-        # self.i+=1
-        # if self.i==500:
-        #     reward=100-50*(self.state[0]-self.theta1d)**2-25*(self.state[1]-self.theta2d)**2-0.1*(self.state[2])**2-0.1*(self.state[3])**2
-        #     done=1
-        # else:
-        #     done=0
+        reward = reward1 + reward2
+        done=bool(self.state[1]>3*pi/4 or self.state[1]<-3*pi/4)
+        if done:
+            reward=-1000
+
         # if 1.05*Ed<=E<=0.95*Ed:
         #     reward=100-abs(a[0])
         # else:
@@ -284,10 +287,19 @@ class AcrobotEnv(core.Env):
         # self.a_before=a[0]
         #只考虑起摆
         # done=bool(E>=Ed)
+        # q2_d=0.5*np.arctan(ns[2])
+        # reward=-100*abs(ns[3]-q2_d)
+        # if ns[2]*ns[3]>=0:
+        #     reward = -math.pow(a[0], 2) * 0.1
+        # else:
+        #     reward=-10
+        # if done:
+        #     reward=100
         # reward=0
         # if done:
         #     reward=100
         # reward-=math.pow(a[0],2)*0.1
+        #
         # self.E1=E
         # self.i += 1
         # done=bool(D<=0.1)
@@ -297,7 +309,7 @@ class AcrobotEnv(core.Env):
         #只考虑起摆
         # return (self._get_ob(),reward,False,[E,self.state,Ed])
         #能量
-        return (self._get_ob(), reward, False, [E,self.state,Ed,self.theta2d,D,reward,reward1,reward2,reward3,reward5])
+        return (self._get_ob(), reward, done, [E,self.state,Ed,self.theta2d,D,reward,reward1,reward2,reward3,reward5])
         # 对称虚约束的
         # return (self._get_ob(), reward, False,[reward1,reward2,self.state,phi,Y,D])
         #虚约束与能量结合
@@ -329,7 +341,7 @@ class AcrobotEnv(core.Env):
 
     def _get_ob(self):
         s = self.state
-        return np.array([cos(s[0]), np.sin(s[0]), cos(s[1]), sin(s[1]), s[2], s[3]])
+        return np.array([cos(s[0]), np.sin(s[0]), cos(s[1]), sin(s[1]), s[2],s[3]])
 
     # def _get_ob(self):
     #     s = self.state
@@ -349,10 +361,10 @@ class AcrobotEnv(core.Env):
         lc2 = self.LINK_COM_POS_2
         I1 = self.LINK_MOI1
         I2 = self.LINK_MOI2
-        # mu11=self.MU11
-        # mu12=self.MU12
-        # mu21=self.MU21
-        # mu22=self.MU22
+        mu11=self.MU11
+        mu12=self.MU12
+        mu21=self.MU21
+        mu22=self.MU22
 
         g = 9.81
         a = s_augmented[-1]
@@ -375,8 +387,8 @@ class AcrobotEnv(core.Env):
         d12=self.omega2+self.omega3*cos(theta2)
         d21=d12
         d22=self.omega2
-        h1=-self.omega3*dtheta2*sin(theta2)*(2*dtheta1+dtheta2)#+mu11*dtheta1+mu12*sgn(dtheta1)
-        h2=self.omega3*dtheta1**2*sin(theta2)#+mu21*dtheta2+mu22*sgn(dtheta2)
+        h1=-self.omega3*dtheta2*sin(theta2)*(2*dtheta1+dtheta2)+mu11*dtheta1+mu12*sgn(dtheta1)
+        h2=self.omega3*dtheta1**2*sin(theta2)+mu21*dtheta2+mu22*sgn(dtheta2)
         phi2=self.omega5*g*cos(theta1+theta2)
         phi1=self.omega4*g*cos(theta1)+phi2
         ddtheta1 = (d12 * a - d12 * (h2 + phi2) + d22 * (h1 + phi1)) / (d12 * d21 - d22 * d11)

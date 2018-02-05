@@ -60,7 +60,7 @@ class AcrobotEnv(core.Env):
         'video.frames_per_second' : 15
     }
 
-    dt = .001
+    dt = .01
     #基于能量的理想模型
     # LINK_LENGTH_1 = 0.5 # [m]
     # LINK_LENGTH_2 = 0.5  # [m]
@@ -70,34 +70,39 @@ class AcrobotEnv(core.Env):
     # LINK_COM_POS_2 = 0.333  #: [m] position of the center of mass of link 2
     # LINK_MOI1 = 0.09  #: moments of inertia for both links
     # LINK_MOI2 = 0.033
-    # MU11 = 0.
-    # MU12 = 0.
-    # MU21 = 0.
-    # MU22 = 0.
+    MU11 = 0.
+    MU12 = 0.
+    MU21 = 0.
+    MU22 = 0.
     g = 9.81
     #理想并且没有摩擦的模型参数
-    # LINK_LENGTH_1 = 1.  # [m]
-    # LINK_LENGTH_2 = 1.  # [m]
-    # LINK_MASS_1 = 1.  #: [kg] mass of link 1
-    # LINK_MASS_2 = 1.  #: [kg] mass of link 2
-    # LINK_COM_POS_1 = 0.5  #: [m] position of the center of mass of link 1
-    # LINK_COM_POS_2 = 0.5  #: [m] position of the center of mass of link 2
-    # LINK_MOI1 = 1.  #: moments of inertia for both links
-    # LINK_MOI2 = 1.
-    # g = 9.81
+    LINK_LENGTH_1 = 1.  # [m]
+    LINK_LENGTH_2 = 1.  # [m]
+    LINK_MASS_1 = 1.  #: [kg] mass of link 1
+    LINK_MASS_2 = 1.  #: [kg] mass of link 2
+    LINK_COM_POS_1 = 0.5  #: [m] position of the center of mass of link 1
+    LINK_COM_POS_2 = 0.5  #: [m] position of the center of mass of link 2
+    LINK_MOI1 = 1.  #: moments of inertia for both links
+    LINK_MOI2 = 1.
+    g = 9.81
     #有摩擦实际模型
-    LINK_LENGTH_1 = 0.593  # [m]
-    LINK_LENGTH_2 = 0.593  # [m]
-    LINK_MASS_1 = 2.73  #: [kg] mass of link 1
-    LINK_MASS_2 = 1.68  #: [kg] mass of link 2
-    LINK_COM_POS_1 = 0.4  #: [m] position of the center of mass of link 1
-    LINK_MOI1 = 0.25  #: moments of inertia for both links
-    LINK_COM_POS_2 = 0.377  #: [m] position of the center of mass of link 2
-    LINK_MOI2= 0.116
-    MU11=0.205
-    MU12=0.184
-    MU21=0.93
-    MU22=1.07
+    # LINK_LENGTH_1 = 0.593  # [m]
+    # LINK_LENGTH_2 = 0.5  # [m]
+    # LINK_MASS_1 = 2.73  #: [kg] mass of link 1
+    # LINK_MASS_2 = 0.56  #: [kg] mass of link 2
+    # LINK_COM_POS_1 = 0.33  #: [m] position of the center of mass of link 1
+    # LINK_MOI1 = 0.266  #: moments of inertia for both links
+    # LINK_COM_POS_2 = 0.254  #: [m] position of the center of mass of link 2
+    # LINK_MOI2= 0.012
+    # MU11 = 0.95
+    # MU12 = 0.122
+    # MU21 = 0.93
+    # MU22 = 1.07
+    # g = 9.81
+    # MU11=0.05
+    # MU12=0.019
+    # MU21=0.971
+    # MU22=1
     g = 9.81
     # LINK_COM_POS_1 = 0.3  #: [m] position of the center of mass of link 1
     # LINK_MOI1 = 0.25  #: moments of inertia for both links
@@ -123,7 +128,7 @@ class AcrobotEnv(core.Env):
     omega4=LINK_MASS_1*LINK_COM_POS_1+LINK_MASS_2*LINK_LENGTH_1
     omega5=LINK_MASS_2*LINK_COM_POS_2
     theta1d = -pi / 4
-    theta2d = pi/2
+    theta2d = pi / 4
 
     MAX_VEL_1 = 4 * np.pi
     MAX_VEL_2 = 9 * np.pi
@@ -160,7 +165,8 @@ class AcrobotEnv(core.Env):
         # high = np.array([-pi/2+0.1, 0.1, 0.0, 0.0])
         # low = np.array([-pi/2-0.1, -0.1, -0.0, -0.0])
         # self.state = self.np_random.uniform(low=low, high=high)
-        self.state=[-5*pi/6,-pi/6,0,0]
+        self.state=[-3*pi/4,-pi/4,0,0]
+        # self.state=[-pi/2,0,0,0]
         # self.theta1d=self.np_random.uniform(low=-pi/3, high=-pi/6, size=(1,))[0]
         # self.theta2d = self.np_random.uniform(low=pi/3, high=2*pi/3, size=(1,))[0]
         # self.state=[-self.theta1d-pi,-self.theta2d,0,0]
@@ -309,7 +315,7 @@ class AcrobotEnv(core.Env):
         #只考虑起摆
         # return (self._get_ob(),reward,False,[E,self.state,Ed])
         #能量
-        return (self._get_ob(), reward, done, [E,self.state,Ed,self.theta2d,D,reward,reward1,reward2,reward3,reward5])
+        return (self._get_ob(), reward, False, [E,self.state,Ed,self.theta2d,D,reward,reward1,reward2,reward3,reward5])
         # 对称虚约束的
         # return (self._get_ob(), reward, False,[reward1,reward2,self.state,phi,Y,D])
         #虚约束与能量结合
@@ -525,7 +531,8 @@ class AcrobotEnv(core.Env):
         #模型改2
         T1 = 1 / 2 * I1 * dtheta1 ** 2 + 1 / 2 * m1 * (dtheta1 * lc1) ** 2
         V1 = m1 * g * lc1 * sin(theta1)
-        T2 = 1 / 2 * m2 * ((dtheta1 * l1) ** 2 + ((dtheta1 + dtheta2) * lc2) ** 2 + 2 * dtheta1 * (dtheta1 + dtheta2) * lc2 * l1 * cos(theta2)) + 1 / 2 * I2 * (dtheta1 + dtheta2) ** 2
+        T2 = 1 / 2 * m2 * ((dtheta1 * l1) ** 2 + ((dtheta1 + dtheta2) * lc2) ** 2 + 2 * dtheta1 * (dtheta1 + dtheta2)
+                           * lc2 * l1 * cos(theta2)) + 1 / 2 * I2 * (dtheta1 + dtheta2) ** 2
         V2 = m2 * g * (l1 * sin(theta1) + lc2 * sin(theta1 + theta2))
         E = V1 + V2 + T1 + T2
         return E

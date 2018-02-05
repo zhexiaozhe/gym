@@ -30,8 +30,8 @@ class PendulumEnv(gym.Env):
         th, thdot = self.state # th := theta
 
         g = 10.
-        m = 1.
-        l = 1.
+        m = 2.73
+        l = 0.893
         dt = self.dt
 
         u = np.clip(u, -self.max_torque, self.max_torque)[0]
@@ -43,10 +43,11 @@ class PendulumEnv(gym.Env):
         newthdot = np.clip(newthdot, -self.max_speed, self.max_speed) #pylint: disable=E1111
 
         self.state = np.array([newth, newthdot])
-        return self._get_obs(), -costs, False, {}
+        return self._get_obs(), -costs, False, [newth,newthdot]
 
     def _reset(self):
         high = np.array([np.pi, 1])
+        # self.state=[-np.pi/2,0]
         self.state = self.np_random.uniform(low=-high, high=high)
         self.last_u = None
         return self._get_obs()

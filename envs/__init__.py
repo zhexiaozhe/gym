@@ -87,7 +87,7 @@ register(
 register(
     id='Acrobot-v1',
     entry_point='gym.envs.classic_control:AcrobotEnv',
-    max_episode_steps=2000,
+    max_episode_steps=1000,
 )
 
 # Box2d

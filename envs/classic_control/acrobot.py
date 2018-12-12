@@ -60,7 +60,7 @@ class AcrobotEnv(core.Env):
         'video.frames_per_second' : 15
     }
 
-    dt = .01
+    dt = .02
     #基于能量的理想模型
     # LINK_LENGTH_1 = 0.5 # [m]
     # LINK_LENGTH_2 = 0.5  # [m]
@@ -70,11 +70,11 @@ class AcrobotEnv(core.Env):
     # LINK_COM_POS_2 = 0.333  #: [m] position of the center of mass of link 2
     # LINK_MOI1 = 0.09  #: moments of inertia for both links
     # LINK_MOI2 = 0.033
-    MU11 = 0.
-    MU12 = 0.
-    MU21 = 0.
-    MU22 = 0.
-    g = 9.81
+    # MU11 = 0.
+    # MU12 = 0.
+    # MU21 = 0.
+    # MU22 = 0.
+    # g = 9.81
     #理想并且没有摩擦的模型参数
     LINK_LENGTH_1 = 1.  # [m]
     LINK_LENGTH_2 = 1.  # [m]
@@ -82,56 +82,51 @@ class AcrobotEnv(core.Env):
     LINK_MASS_2 = 1.  #: [kg] mass of link 2
     LINK_COM_POS_1 = 0.5  #: [m] position of the center of mass of link 1
     LINK_COM_POS_2 = 0.5  #: [m] position of the center of mass of link 2
-    LINK_MOI1 = 1.  #: moments of inertia for both links
-    LINK_MOI2 = 1.
+    LINK_MOI1 = 1/3.  #: moments of inertia for both links
+    LINK_MOI2 = 1/3.
+    MU11 = 0.
+    MU12 = 0.
+    MU21 = 0.
+    MU22 = 0.
     g = 9.81
     #有摩擦实际模型
     # LINK_LENGTH_1 = 0.593  # [m]
-    # LINK_LENGTH_2 = 0.5  # [m]
-    # LINK_MASS_1 = 2.73  #: [kg] mass of link 1
-    # LINK_MASS_2 = 0.56  #: [kg] mass of link 2
-    # LINK_COM_POS_1 = 0.33  #: [m] position of the center of mass of link 1
-    # LINK_MOI1 = 0.266  #: moments of inertia for both links
-    # LINK_COM_POS_2 = 0.254  #: [m] position of the center of mass of link 2
-    # LINK_MOI2= 0.012
-    # MU11 = 0.95
-    # MU12 = 0.122
-    # MU21 = 0.93
-    # MU22 = 1.07
-    # g = 9.81
-    # MU11=0.05
-    # MU12=0.019
-    # MU21=0.971
-    # MU22=1
-    g = 9.81
+    # LINK_LENGTH_2 = 0.593  # [m]
+    # LINK_MASS_1 = 2.78  #: [kg] mass of link 1
+    # LINK_MASS_2 = 1.73  #: [kg] mass of link 2
     # LINK_COM_POS_1 = 0.3  #: [m] position of the center of mass of link 1
     # LINK_MOI1 = 0.25  #: moments of inertia for both links
     # LINK_COM_POS_2 = 0.4  #: [m] position of the center of mass of link 2
     # LINK_MOI2 = 0.116
-    # MU11 = 0.5
-    # MU12=0.5
-    # MU21=1
-    # MU22=2
+    # MU11 = 0.205
+    # MU12=0.184
+    # MU21=0.93
+    # MU22=1.07
 
-    # LINK_LENGTH_1 = 0.593  # [m]
-    # LINK_LENGTH_2 = 0.593  # [m]
-    # LINK_MASS_1 = 2.73  #: [kg] mass of link 1
-    # LINK_MASS_2 = 1.68  #: [kg] mass of link 2
-    # LINK_COM_POS_1 = 0.29  #: [m] position of the center of mass of link 1
-    # LINK_COM_POS_2 = 0.3838  #: [m] position of the center of mass of link 2
-    # LINK_MOI1 = 0.19  #: moments of inertia for both links
-    # LINK_MOI2 = 0.08
-    # g = 9.81
+    # LINK_COM_POS_1 = 0.493
+    # LINK_MOI1 = 0.018
+    # LINK_COM_POS_2 = 0.12
+    # LINK_MOI2 = 0.32
+    # MU11 = 0.497
+    # MU12 = 0.497
+    # MU21 = 0.62
+    # MU22 = 1.99
+    g = 9.81
+
     omega1=LINK_MASS_1*LINK_COM_POS_1**2+LINK_MASS_2*LINK_LENGTH_1**2+LINK_MOI1
     omega2=LINK_MASS_2*LINK_COM_POS_2**2+LINK_MOI2
     omega3=LINK_MASS_2*LINK_LENGTH_1*LINK_COM_POS_2
     omega4=LINK_MASS_1*LINK_COM_POS_1+LINK_MASS_2*LINK_LENGTH_1
     omega5=LINK_MASS_2*LINK_COM_POS_2
-    theta1d = -pi / 4
-    theta2d = pi / 4
+    # theta1d = -pi / 4
+    # theta2d = pi / 2
+
+    theta1d = -5*pi / 18
+    theta2d = 5*pi / 9
 
     MAX_VEL_1 = 4 * np.pi
     MAX_VEL_2 = 9 * np.pi
+    # MAX_VEL_2=8/3*np.pi
     max_torque = 10.
     #: use dynamics equations from the nips paper or the book
     book_or_nips = "book"
@@ -144,9 +139,6 @@ class AcrobotEnv(core.Env):
         # high = np.array([1.0, 1.0, 1.0, 1.0, self.MAX_VEL_1, self.MAX_VEL_2,1.0,1.0,1.0,1.0])
         high=np.array([1.0,1.0,1.0,1.0,self.MAX_VEL_1,self.MAX_VEL_2])
         low = -high
-        #基于误差
-        # high=np.array([20,2])
-        # low=-high
         self.observation_space = spaces.Box(low, high)
         self.action_space = spaces.Box(low=-self.max_torque, high=self.max_torque, shape=(1,))
         self.state = None
@@ -159,68 +151,39 @@ class AcrobotEnv(core.Env):
         return [seed]
 
     def _reset(self):
-        # self.state = self.np_random.uniform(low=-1, high=1, size=(4,))
-        # high = np.array([-3*pi / 4 + 0.1, -pi/2+0.1, 0.0, 0.0])
-        # low = np.array([-3*pi / 4 - 0.1, -pi/2-0.1, -0.0, -0.0])
-        # high = np.array([-pi/2+0.1, 0.1, 0.0, 0.0])
-        # low = np.array([-pi/2-0.1, -0.1, -0.0, -0.0])
+        # high = np.array([-3*pi / 4 + 0.2, -pi/2+0.2, 0.0, 0.0])
+        # low = np.array([-3*pi / 4 - 0.2, -pi/2-0.2, -0.0, -0.0])
+        # high = np.array([-pi/2+1, 1, 0.0, 0.0])
+        # low = np.array([-pi/2-1, -1, -0.0, -0.0])
+        # high = np.array([-pi / 2 + 0.5, 0.5, 0.0, 0.0])
+        # low = np.array([-pi / 2 - 0.5, -0.5, -0.0, -0.0])
+        # high = np.array([-7 * pi / 8 + 0.3, -pi / 4 + 0.1, 0.0, 0.0])
+        # low = np.array([-7*pi / 8 +0.1, -pi/4-0.1, -0.0, -0.0])
         # self.state = self.np_random.uniform(low=low, high=high)
-        self.state=[-3*pi/4,-pi/4,0,0]
+        # self.state = [-5* pi / 6, -pi / 3, 0, 0]
+        # self.state=[-3*pi/4,-pi/2,0,0]
+        self.state = [-0.55, 0.64, 0, 0]
         # self.state=[-pi/2,0,0,0]
         # self.theta1d=self.np_random.uniform(low=-pi/3, high=-pi/6, size=(1,))[0]
         # self.theta2d = self.np_random.uniform(low=pi/3, high=2*pi/3, size=(1,))[0]
-        # self.state=[-self.theta1d-pi,-self.theta2d,0,0]
-        m1 = self.LINK_MASS_1
-        m2 = self.LINK_MASS_2
-        l1 = self.LINK_LENGTH_1
-        lc1 = self.LINK_COM_POS_1
-        lc2 = self.LINK_COM_POS_2
-        I1 = self.LINK_MOI1
-        I2 = self.LINK_MOI2
-        g = 9.81
-        Ed = m1 * g * lc1 * sin(self.theta1d) + m2 * g * (l1 * sin(self.theta1d) + lc2 * sin(self.theta1d + self.theta2d))
-        E = self.energy(self.state)
-        eE = E - Ed
-        eq2 = self.state[1] - self.theta2d
-        self.consume_energy=0
-        self.a_before=0
-        self.i=0
-        self.A=[]
         #虚约束的方法的参数
-        # self.a = (self.theta1d+pi/2) / self.theta2d
-        # self.b = -pi/2
-        # self.A = self.omega2 + self.a * self.omega1 + self.a * self.omega2
-        # self.B = (1 + 2 * self.a) * self.omega3
-        # self.Y0 =0
-        # self.state = [self.theta1d, self.theta2d, 0, 0]
+        self.a = (self.theta1d+pi/2) / self.theta2d
+        self.b = -pi/2
+        self.A = self.omega2 + self.a * self.omega1 + self.a * self.omega2
+        self.B = (1 + 2 * self.a) * self.omega3
+        self.Y0 =0
         return self._get_ob()
-        #基于误差
-        # return np.array([eE,eq2])
 
     def _step(self, a):
 
         s = self.state
         #对称虚约束的方法
-        # phi=self.a*s[1]+self.b
-        # Y=-(2*self.g*(self.F(s[1])-self.F(self.theta2d)))/(self.A+self.B*cos(s[1]))**2+self.Y0*((self.A+self.B*cos(self.theta2d))/(self.A+self.B*cos(s[1])))**2
-        # reward1=-abs(phi-s[0])
+        phi=self.a*s[1]+self.b
+        Y=-(2*self.g*(self.F(s[1])-self.F(self.theta2d)))/(self.A+self.B*cos(s[1]))**2+self.Y0*((self.A+self.B*cos(self.theta2d))/(self.A+self.B*cos(s[1])))**2
+        reward1=-abs(phi-s[0])
         # reward2=-abs(Y-s[3]**2)
         # reward=10*reward1+reward2
-        p=self.state[3]*a[0]
-        self.consume_energy+=p*0.02
-        #对称虚约束结合距离的方法
-
-        #奖励2通过距离范围来实现
-        # if D<=0.05:
-        #     reward2=10
-        #     done=1
-        # else:
-        #     reward2=0
-        #     done=0
-        # phi = self.a * s[1] + self.b
-        # reward1 = -abs(phi - s[0])
-        # reward = reward1 + reward2
-
+        # done=0
         # 目标能量
         m1 = self.LINK_MASS_1
         m2 = self.LINK_MASS_2
@@ -231,20 +194,71 @@ class AcrobotEnv(core.Env):
         I2 = self.LINK_MOI2
         g = 9.81
         Ed = m1 * g * lc1 * sin(self.theta1d) + m2 * g * (l1 * sin(self.theta1d) + lc2 * sin(self.theta1d + self.theta2d))
+        torque = np.clip(a, -self.max_torque, self.max_torque)[0]
+        E = self.energy(s)
+        #基于能量
+        # if self.state[1]>17*pi/18 or self.state[1]<-17*pi/18:
+        #     reward=-1000
+        #     done=1
+        # else:
+        #     reward1 = -abs(E - Ed)
+        #     reward2 = -10 * abs(self.state[1] - self.theta2d)
+        #     reward = reward1 + reward2
+        #     done=0
+        reward1 = -abs(E - Ed)
+        reward2 = -10 * abs(self.state[1] - self.theta2d)
+        reward = reward1 + reward2
+        done = 0
+        D = self.distance(self.state)
 
-        #蓄能起摆训练
-        # phi = self.a * s[1] + self.b
-        # reward1 = -abs(phi - s[0])
-        # reward2=-abs(E-Ed)
-        # reward = 10*reward1 + reward2
+        # 只考虑抓取
+        # if D < 0.05:
+        #     reward = 100 - 0.1 * torque ** 2-self.state[2]**2-self.state[3]**2
+        #     done = 1
+        # else:
+        #     reward = -10 * D - 0.1 * torque ** 2
+        #     done = 0
 
-        # Add noise to the force action
-        # if self.torque_noise_max > 0:
-        #     torque += self.np_random.uniform(-self.torque_noise_max, self.torque_noise_max)
+        #只考虑抓取稀疏奖励
+        # if D < 0.05:
+        #     reward=100
+        #     done=1
+        # elif self.state[1]>5*pi/6 or self.state[1]<-5*pi/6:
+        #     reward=-10
+        #     done=1
+        # else:
+        #     reward=0
+        #     done=0
+
+        #基于距离
+        # if self.state[1]>17*pi/18 or self.state[1]<-17*pi/18:
+        #     reward = -10
+        #     done=1
+        # else:
+        #     reward=-D
+        #     if D<0.05:
+        #         done=1
+        #     else:
+        #         done=0
+        # reward=reward+reward1
+        #基于能量和目标点
+        # if D<0.05:
+        #     reward = 100 - 0.1 * torque ** 2 - self.state[2] ** 2 - self.state[3] ** 2
+        #     done=1
+        # else:
+        #     reward1 = -abs(E - Ed)
+        #     reward2 = -5 * abs(self.state[1] - 0)
+        #     # reward3 = -0.2 * abs(torque - 0)
+        #     reward = reward1 + reward2 #+ reward3
+        #     done=0
+        # else:
+        # reward1 = -abs(E - Ed)
+        # reward2 = -10 * abs(self.state[1] - self.theta2d)
+        # reward = reward1 + reward2
+        # done=0
 
         # Now, augment the state with our force action so it can be passed to
         # _dsdt
-        torque = np.clip(a, -self.max_torque, self.max_torque)[0]
         s_augmented = np.append(s, torque)
 
         ns = rk4(self._dsdt, s_augmented, [0, self.dt])
@@ -260,68 +274,21 @@ class AcrobotEnv(core.Env):
         ns[1] = wrap(ns[1], -pi, pi)
         ns[2] = bound(ns[2], -self.MAX_VEL_1, self.MAX_VEL_1)
         ns[3] = bound(ns[3], -self.MAX_VEL_2, self.MAX_VEL_2)
-        # if self.i==0:
-        #     self.ns_smoothing=ns[3]
-        # self.ns_smoothing=0.2*ns[3]+0.8*self.ns_smoothing
-        # ns[3]=self.ns_smoothing
         self.state = ns
-        E = self.energy(s)
-        # eE = E - Ed
-        # eq2 = self.state[1] - self.theta2d
-        self.A.append(a[0])
-        reward1 = -abs(E - Ed)
-        reward2 = -10*abs(self.state[1] - self.theta2d)
-        reward3=-abs(self.state[3])
-        reward4=-abs(self.state[3]*a[0])
-        reward5=-abs(a[0])
-        # reward = reward1+reward2
-        D=self.distance(self.state)
-        reward = reward1 + reward2
-        done=bool(self.state[1]>3*pi/4 or self.state[1]<-3*pi/4)
-        if done:
-            reward=-1000
 
-        # if 1.05*Ed<=E<=0.95*Ed:
-        #     reward=100-abs(a[0])
-        # else:
-        #     reward=-abs(a[0])
-        # if D<0.1:
-        #     reward=100-self.state[2]**2-self.state[3]**2
-        #     done=1
-        # else:
-        #     done=0
-        # self.a_before=a[0]
-        #只考虑起摆
-        # done=bool(E>=Ed)
-        # q2_d=0.5*np.arctan(ns[2])
-        # reward=-100*abs(ns[3]-q2_d)
-        # if ns[2]*ns[3]>=0:
-        #     reward = -math.pow(a[0], 2) * 0.1
-        # else:
-        #     reward=-10
-        # if done:
-        #     reward=100
-        # reward=0
-        # if done:
-        #     reward=100
-        # reward-=math.pow(a[0],2)*0.1
-        #
-        # self.E1=E
-        # self.i += 1
-        # done=bool(D<=0.1)
-        # reward=0
-        # if done:
-        #     reward=100-0.1*(self.state[2]**2+self.state[3]**2)
+        #只考虑抓取
+        # return (self._get_ob(),reward,done,[self.state,self.theta1d,self.theta2d,D,reward,E,Ed])
+
         #只考虑起摆
         # return (self._get_ob(),reward,False,[E,self.state,Ed])
-        #能量
-        return (self._get_ob(), reward, False, [E,self.state,Ed,self.theta2d,D,reward,reward1,reward2,reward3,reward5])
+        #基于能量
+        # return (self._get_ob(), reward, done, [self.state,self.theta1d,self.theta2d,E,Ed,D])
         # 对称虚约束的
-        # return (self._get_ob(), reward, False,[reward1,reward2,self.state,phi,Y,D])
-        #虚约束与能量结合
-        # return(self._get_ob(), reward, False,[reward1,reward2,self.state,phi,D,E,Ed])
-        #基于能量和角度误差
-        # return (np.array([eE,eq2]),reward,False,[eE,eq2,Ed])
+        return (self._get_ob(), reward, False,[self.state,reward1,reward2,phi,Y,D])
+        #对称虚约束控制器
+        # return (self._get_ob(),reward,done,[self.state])
+        #基于多目标
+        # return (self._get_ob(), reward, done, [self.state, self.theta1d, self.theta2d, E, Ed, D])
 
     def F(self,x):
         F=(self.A*self.omega4+0.5*self.B*self.omega5)/self.a*sin(self.a*x+self.b)+(self.A*self.omega5+0.5*self.B*self.omega4)/(self.a+1)*sin((self.a+1)*x+self.b)\
@@ -349,6 +316,7 @@ class AcrobotEnv(core.Env):
         s = self.state
         return np.array([cos(s[0]), np.sin(s[0]), cos(s[1]), sin(s[1]), s[2],s[3]])
 
+    #变目标
     # def _get_ob(self):
     #     s = self.state
     #     return np.array([cos(s[0]), np.sin(s[0]), cos(s[1]), sin(s[1]), s[2], s[3],\
@@ -564,7 +532,6 @@ def bound(x, m, M=None):
         m = m[0]
     # bound x between min (m) and Max (M)
     return min(max(x, m), M)
-
 
 def rk4(derivs, y0, t, *args, **kwargs):
     """
